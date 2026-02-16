@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# Dairy Farm Production Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first Progressive Web App for dairy farm advisors to upload, store, and analyze production reports offline.
 
-Currently, two official plugins are available:
+## 🎯 Problem Statement
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Technical advisors for dairy farms spend significant time on-site reviewing production reports from various sources (PDFs with different formats). They face two main challenges:
 
-## React Compiler
+1. **Poor/No Internet Connectivity** at farm locations
+2. **Manual Data Review** - opening multiple PDFs, scrolling tables, taking notes
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This solution provides a practical, mobile-friendly tool to:
 
-## Expanding the ESLint configuration
+- Upload production report PDFs
+- Extract and structure data automatically
+- Store reports locally for offline access
+- Visualize trends and compare data easily
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **📱 Mobile-First Design** - Optimized for on-site tablet/phone use
+- **📡 Offline-First** - Works without internet after initial data upload
+- **📊 Visual Analytics** - Charts and tables for quick insights
+- **🔄 Flexible Data Handling** - Adapts to different PDF report structures
+- **💾 Local Storage** - All data persists in browser, no server dependency
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠️ Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **React 19** with TypeScript
+- **Vite** for build tooling
+- **Tailwind CSS** for styling
+- **Recharts** for data visualization
+- **LocalStorage API** for offline persistence
+
+## 📦 Installation
+
+```bash
+# Clone repository
+git clone <your-repo-url>
+cd dairy-farm-tracker
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎮 Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Upload a PDF** - Click the upload area and select a production report
+2. **Wait for Processing** - The API extracts data (30-60 seconds)
+3. **View Results** - See charts and detailed tables automatically
+4. **Offline Access** - Reload the page - your data persists!
+5. **Compare Reports** - Upload multiple PDFs and switch between them
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🏗️ Architecture Decisions
+
+### Why Offline-First?
+
+Farm locations often have poor connectivity. By storing data in localStorage, advisors can access previously uploaded reports without internet.
+
+### Why Flexible Data Structure?
+
+Production reports vary widely (milk production, lab results, delivery summaries). The app dynamically adapts to whatever fields the PDF contains, rather than hardcoding specific columns.
+
+### Why localStorage over IndexedDB?
+
+For MVP simplicity. localStorage is sufficient for storing ~10-20 reports (under 5MB). Future versions could migrate to IndexedDB for larger datasets.
+
+## 🔑 Key Assumptions
+
+1. **User has internet during upload** - Initial PDF processing requires connectivity
+2. **PDF quality is reasonable** - OCR extraction may have imperfections (addressed in UI)
+3. **Mobile devices are primary use case** - Design prioritizes touch interactions
+4. **Single farm context** - Currently hardcoded to "Farm_Zero_C" client
+
+## 📊 API Integration
+
+Uses a document processing service:
+
+- `POST /process-file/` - Submit PDF, returns session_id
+- `GET /results/{session_id}/dairyProduction` - Poll for extracted JSON data
+
+The app handles asynchronous processing with automatic retry logic.
+
+## 🎥 Demo
+
+[Link to video demonstration]
+
+## 🧠 AI Tools Used
+
+See [PROMPTS.md](PROMPTS.md) for detailed documentation of AI assistance.
+
+## 📄 License
+
+MIT

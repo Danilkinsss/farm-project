@@ -43,8 +43,6 @@ export default function DataTable({
     return null
   }
 
-  console.log('data', data)
-
   // Use availableFields if provided, otherwise infer from first row
   const fields =
     availableFields && availableFields.length > 0
@@ -68,8 +66,8 @@ export default function DataTable({
   ]
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h3 className="text-2xl font-bold mb-4">{title}</h3>
+    <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
+      <h3 className="text-xl md:text-2xl font-bold mb-4">{title}</h3>
 
       {/* Summary Cards */}
       {numericFields.length > 0 && (
@@ -96,39 +94,49 @@ export default function DataTable({
         </div>
       )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              {fields.map((field) => (
-                <th key={field} className="px-4 py-3 text-left font-semibold">
-                  {formatFieldName(field)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, idx) => (
-              <tr key={idx} className="border-t hover:bg-gray-50">
-                {fields.map((field) => {
-                  const value = row[field]
-                  const isNumeric = typeof value === 'number'
+      {/* Table - Mobile Optimized */}
+      <div className="overflow-x-auto -mx-4 md:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden">
+            <table className="min-w-full text-xs md:text-sm">
+              <thead className="bg-gray-100">
+                <tr>
+                  {fields.map((field) => (
+                    <th
+                      key={field}
+                      className="px-3 md:px-4 py-2 md:py-3 text-left font-semibold"
+                    >
+                      {formatFieldName(field)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((row, idx) => (
+                  <tr key={idx} className="border-t hover:bg-gray-50">
+                    {fields.map((field) => {
+                      const value = row[field]
+                      const isNumeric = typeof value === 'number'
 
-                  return (
-                    <td key={field} className="px-4 py-3">
-                      {isNumeric
-                        ? field.toLowerCase().includes('percentage')
-                          ? `${value.toFixed(2)}%`
-                          : value.toLocaleString()
-                        : String(value ?? '')}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      return (
+                        <td
+                          key={field}
+                          className="px-3 md:px-4 py-2 md:py-3"
+                        >
+                          {isNumeric
+                            ? field.toLowerCase().includes('percentage')
+                              ? `${value.toFixed(2)}%`
+                              : value.toLocaleString()
+                            : String(value ?? '')}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   )
