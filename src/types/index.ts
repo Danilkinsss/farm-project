@@ -1,3 +1,20 @@
+export interface ApiProductionData {
+  ordinal: number
+  litres: number
+  fatPercentage: number
+  proteinPercentage: number
+  totalLactatingCows: number | null
+  totalCows: number | null
+  totalHeifers: number | null
+  totalCalves: number | null
+  totalDryCows: number | null
+}
+
+export interface ApiResponse {
+  period: string
+  data: ApiProductionData[]
+}
+
 export interface ProductionData {
   month: string
   total_litres: number

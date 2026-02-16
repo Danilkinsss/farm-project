@@ -1,4 +1,4 @@
-import type { ProductionData, UploadResponse } from '../types'
+import type { ApiResponse, ProductionData, UploadResponse } from '../types'
 
 const API_BASE = 'http://f4040w8sskscss8c8sgc0ggc.20.102.99.51.sslip.io'
 const API_KEY =
@@ -11,10 +11,40 @@ const PERIOD = 'MONTHLY'
 const DEFAULT_MAX_ATTEMPTS = 30
 const DEFAULT_POLL_INTERVAL_MS = 2000
 
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
 function getAuthHeaders() {
   return {
     'X-API-Key': API_KEY,
   }
+}
+
+function mapApiResponseToProductionData(
+  apiResponse: ApiResponse
+): ProductionData[] {
+  return apiResponse.data.map((item) => {
+    const monthName = MONTHS[item.ordinal - 1] ?? `Month ${item.ordinal}`
+
+    return {
+      month: monthName,
+      total_litres: item.litres,
+      fat_percentage: item.fatPercentage,
+      protein_percentage: item.proteinPercentage,
+    }
+  })
 }
 
 export async function uploadPDF(file: File): Promise<string> {
@@ -55,8 +85,8 @@ export async function getResults(sessionId: string): Promise<ProductionData[]> {
     throw new Error('Results are not ready yet. Please try again.')
   }
 
-  const data: ProductionData[] = await response.json()
-  return data
+  const apiData: ApiResponse = await response.json()
+  return mapApiResponseToProductionData(apiData)
 }
 
 export async function pollResults(
@@ -64,12 +94,14 @@ export async function pollResults(
   maxAttempts: number = DEFAULT_MAX_ATTEMPTS,
   intervalMs: number = DEFAULT_POLL_INTERVAL_MS
 ): Promise<ProductionData[]> {
-  for (let attempts = 0; attempts < maxAttempts; attempts++) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       const data = await getResults(sessionId)
       return data
     } catch {
-      if (attempts >= maxAttempts) {
+      const isLastAttempt = attempt === maxAttempts - 1
+
+      if (isLastAttempt) {
         throw new Error(
           'Processing is taking longer than expected. Please try again later.'
         )
