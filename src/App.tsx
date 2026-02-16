@@ -5,41 +5,54 @@ import ProductionChart from './components/Chart'
 import { getReports, deleteReport } from './services/storage'
 import type { Report } from './types'
 
-function App() {
-  const [reports, setReports] = useState<Report[]>([])
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+function getInitialReports() {
+  const allReports = getReports()
+  return {
+    reports: allReports,
+    selected:
+      allReports.length > 0 ? allReports[allReports.length - 1] : null,
+  }
+}
 
-  const loadReports = () => {
+function App() {
+  const initial = getInitialReports()
+  const [reports, setReports] = useState<Report[]>(initial.reports)
+  const [selectedReport, setSelectedReport] = useState<Report | null>(
+    initial.selected
+  )
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
+
+  const loadReports = (selectLatest = false) => {
     const allReports = getReports()
     setReports(allReports)
-    if (allReports.length > 0 && !selectedReport) {
+
+    if (selectLatest && allReports.length > 0) {
       setSelectedReport(allReports[allReports.length - 1])
     }
   }
 
   useEffect(() => {
-    // Load reports only after initial render and avoid setting state immediately in effect
-    const allReports = getReports()
-    setReports(allReports)
-    if (allReports.length > 0 && !selectedReport) {
-      setSelectedReport(allReports[allReports.length - 1])
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleUploadSuccess = () => {
-    const allReports = getReports()
-    setReports(allReports)
-    if (allReports.length > 0 && !selectedReport) {
-      setSelectedReport(allReports[allReports.length - 1])
-    }
+    loadReports(true)
   }
 
   const handleDelete = (id: string) => {
     if (confirm('Delete this report?')) {
       deleteReport(id)
-      loadReports()
       setSelectedReport(null)
+      loadReports(false)
     }
   }
 
@@ -138,9 +151,9 @@ function App() {
       </div>
 
       {/* Offline Indicator */}
-      {!navigator.onLine && (
+      {!isOnline && (
         <div className="fixed bottom-3 right-3 md:bottom-4 md:right-4 bg-yellow-500 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg shadow-lg text-sm">
-          📡 Offline Mode
+          📡 Offline — saved reports still available
         </div>
       )}
     </div>

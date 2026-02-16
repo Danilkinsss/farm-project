@@ -37,32 +37,31 @@ function transformApiData(apiResponse: ApiResponse): {
   data: ProductionData[]
   fields: string[]
 } {
-  const fieldsSet = new Set<string>()
-
   const transformedData = apiResponse.data.map((item) => {
     const row: ProductionData = {}
 
     // Add month if ordinal exists
     if (item.ordinal !== undefined && item.ordinal !== null) {
-      const monthName = MONTHS[item.ordinal - 1] ?? `Month ${item.ordinal}`
-      row.month = monthName
-      fieldsSet.add('month')
+      row.month = MONTHS[item.ordinal - 1] ?? `Month ${item.ordinal}`
     }
 
-    // Copy all other fields from API, skip null/undefined
+    // Copy all other fields, skip null/undefined and ordinal
     Object.keys(item).forEach((key) => {
       if (key !== 'ordinal' && item[key] !== null && item[key] !== undefined) {
         row[key] = item[key]
-        fieldsSet.add(key)
       }
     })
 
     return row
   })
 
+  // Get fields from the first row — preserves insertion order
+  const fields =
+    transformedData.length > 0 ? Object.keys(transformedData[0]) : []
+
   return {
     data: transformedData,
-    fields: Array.from(fieldsSet).sort(),
+    fields,
   }
 }
 

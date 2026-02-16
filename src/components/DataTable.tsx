@@ -1,4 +1,5 @@
 import type { ProductionData } from '../types'
+import { formatFieldName, formatCellValue } from '../utils/format'
 
 interface DataTableProps {
   data: ProductionData[]
@@ -6,18 +7,12 @@ interface DataTableProps {
   availableFields?: string[]
 }
 
-function formatFieldName(field: string): string {
-  // Convert camelCase to readable text
-  return field
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (str) => str.toUpperCase())
-    .trim()
-}
-
 function getSummaryValue(data: ProductionData[], field: string): string | null {
   const values = data
     .map((row) => row[field])
-    .filter((v) => typeof v === 'number') as number[]
+    .filter(
+      (v) => typeof v === 'number' && !Number.isNaN(v)
+    ) as number[]
 
   if (values.length === 0) {
     return null
@@ -66,11 +61,15 @@ export default function DataTable({
   ]
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
-      <h3 className="text-xl md:text-2xl font-bold mb-4">{title}</h3>
+    <div className="bg-white rounded-xl shadow-md mb-6 overflow-hidden">
+      <div className="p-4 md:p-6 border-b border-gray-100">
+        <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+          {title}
+        </h3>
+      </div>
 
       {numericFields.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gray-100">
           {numericFields.slice(0, 3).map((field, idx) => {
             const summaryValue = getSummaryValue(data, field)
             const colors = colorClasses[idx % colorClasses.length]
@@ -80,11 +79,11 @@ export default function DataTable({
             }
 
             return (
-              <div key={field} className={`${colors.bg} p-4 rounded-lg`}>
-                <div className="text-sm text-gray-600">
+              <div key={field} className="bg-white p-4 md:p-5">
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                   {formatFieldName(field)}
                 </div>
-                <div className={`text-2xl font-bold ${colors.text}`}>
+                <div className={`text-xl md:text-2xl font-bold mt-1 ${colors.text}`}>
                   {summaryValue}
                 </div>
               </div>
@@ -93,45 +92,40 @@ export default function DataTable({
         </div>
       )}
 
-      <div className="overflow-x-auto -mx-4 md:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <div className="overflow-hidden">
-            <table className="min-w-full text-xs md:text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  {fields.map((field) => (
-                    <th
-                      key={field}
-                      className="px-3 md:px-4 py-2 md:py-3 text-left font-semibold"
-                    >
-                      {formatFieldName(field)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((row, idx) => (
-                  <tr key={idx} className="border-t hover:bg-gray-50">
-                    {fields.map((field) => {
-                      const value = row[field]
-                      const isNumeric = typeof value === 'number'
-
-                      return (
-                        <td key={field} className="px-3 md:px-4 py-2 md:py-3">
-                          {isNumeric
-                            ? field.toLowerCase().includes('percentage')
-                              ? `${value.toFixed(2)}%`
-                              : value.toLocaleString()
-                            : String(value ?? '')}
-                        </td>
-                      )
-                    })}
-                  </tr>
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-gray-50 border-y border-gray-200">
+              {fields.map((field) => (
+                <th
+                  key={field}
+                  className="px-4 md:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                >
+                  {formatFieldName(field)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {data.map((row, idx) => (
+              <tr
+                key={idx}
+                className={`transition-colors hover:bg-blue-50 ${
+                  idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                }`}
+              >
+                {fields.map((field) => (
+                  <td
+                    key={field}
+                    className="px-4 md:px-5 py-3 text-sm text-gray-700 whitespace-nowrap"
+                  >
+                    {formatCellValue(row[field], field)}
+                  </td>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   )

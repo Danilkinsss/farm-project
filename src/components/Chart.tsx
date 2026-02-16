@@ -8,16 +8,10 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import type { ProductionData } from '../types'
+import { formatFieldName } from '../utils/format'
 
 interface ChartProps {
   data: ProductionData[]
-}
-
-function formatFieldName(field: string): string {
-  return field
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (str) => str.toUpperCase())
-    .trim()
 }
 
 function calculateYAxisDomain(
@@ -26,7 +20,9 @@ function calculateYAxisDomain(
 ): [number, number] {
   const values = data
     .map((row) => row[field])
-    .filter((v) => typeof v === 'number' && v !== null) as number[]
+    .filter(
+      (v) => typeof v === 'number' && !Number.isNaN(v) && v !== null
+    ) as number[]
 
   if (values.length === 0) {
     return [0, 100]
@@ -35,16 +31,25 @@ function calculateYAxisDomain(
   const min = Math.min(...values)
   const max = Math.max(...values)
 
-  // If min and max are the same, add small padding
   if (min === max) {
     return [min - 1, max + 1]
   }
 
-  // Add 10% padding on each side
   const range = max - min
   const padding = range * 0.1
 
-  return [min - padding, max + padding]
+  // Round to clean numbers to avoid floating point artifacts
+  return [
+    Math.floor((min - padding) * 100) / 100,
+    Math.ceil((max + padding) * 100) / 100,
+  ]
+}
+
+function formatTickValue(value: number): string {
+  if (value >= 1000) {
+    return value.toLocaleString(undefined, { maximumFractionDigits: 0 })
+  }
+  return value.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
 export default function ProductionChart({ data }: ChartProps) {
@@ -79,7 +84,7 @@ export default function ProductionChart({ data }: ChartProps) {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={data}
-                  margin={{ top: 5, right: 25, bottom: 30, left: 25 }}
+                  margin={{ top: 5, right: 25, bottom: 30, left: -10 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
@@ -92,8 +97,9 @@ export default function ProductionChart({ data }: ChartProps) {
                   />
                   <YAxis
                     tick={{ fontSize: 11 }}
-                    width={35}
+                    width={50}
                     domain={yAxisDomain}
+                    tickFormatter={formatTickValue}
                     allowDataOverflow={false}
                   />
                   <Tooltip />
