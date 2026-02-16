@@ -28,7 +28,7 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
       const sessionId = await uploadPDF(file)
 
       setProgress('Processing document (30-60 seconds)...')
-      const data = await pollResults(sessionId)
+      const { data, fields } = await pollResults(sessionId)
 
       setProgress('Saving results...')
       saveReport({
@@ -37,6 +37,7 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
         uploadDate: new Date().toISOString(),
         data,
         fileName: file.name,
+        availableFields: fields,
       })
 
       setProgress('Success! ✓')
@@ -75,7 +76,7 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
           </div>
           {!loading && (
             <div className="text-sm text-gray-500">
-              Click to select a PDF file
+              PDF files: production reports, lab results, delivery summaries
             </div>
           )}
         </label>

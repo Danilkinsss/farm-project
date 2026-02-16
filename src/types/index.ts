@@ -1,25 +1,19 @@
+// API can return ANY fields - we don't know in advance
 export interface ApiProductionData {
-  ordinal: number
-  litres: number
-  fatPercentage: number
-  proteinPercentage: number
-  totalLactatingCows: number | null
-  totalCows: number | null
-  totalHeifers: number | null
-  totalCalves: number | null
-  totalDryCows: number | null
+  ordinal?: number
+  [key: string]: unknown // Flexible - can have any fields
 }
 
 export interface ApiResponse {
-  period: string
+  period?: string
+  reportType?: string
   data: ApiProductionData[]
+  [key: string]: unknown // Flexible metadata
 }
 
+// Our internal format - keep it flexible
 export interface ProductionData {
-  month: string
-  total_litres: number
-  fat_percentage: number
-  protein_percentage: number
+  [key: string]: unknown // Can contain any fields from API
 }
 
 export interface Report {
@@ -28,6 +22,8 @@ export interface Report {
   uploadDate: string
   data: ProductionData[]
   fileName: string
+  reportType?: string // NEW: track what kind of report
+  availableFields: string[] // NEW: what columns this report has
 }
 
 export interface UploadResponse {

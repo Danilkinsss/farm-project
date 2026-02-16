@@ -32,19 +32,36 @@ function getAuthHeaders() {
   }
 }
 
-function mapApiResponseToProductionData(
+function transformApiData(
   apiResponse: ApiResponse
-): ProductionData[] {
-  return apiResponse.data.map((item) => {
-    const monthName = MONTHS[item.ordinal - 1] ?? `Month ${item.ordinal}`
+): { data: ProductionData[]; fields: string[] } {
+  const fieldsSet = new Set<string>()
 
-    return {
-      month: monthName,
-      total_litres: item.litres,
-      fat_percentage: item.fatPercentage,
-      protein_percentage: item.proteinPercentage,
+  const transformedData = apiResponse.data.map((item) => {
+    const row: ProductionData = {}
+
+    // Add month if ordinal exists
+    if (item.ordinal !== undefined && item.ordinal !== null) {
+      const monthName = MONTHS[item.ordinal - 1] ?? `Month ${item.ordinal}`
+      row.month = monthName
+      fieldsSet.add('month')
     }
+
+    // Copy all other fields from API, skip null/undefined
+    Object.keys(item).forEach((key) => {
+      if (key !== 'ordinal' && item[key] !== null && item[key] !== undefined) {
+        row[key] = item[key]
+        fieldsSet.add(key)
+      }
+    })
+
+    return row
   })
+
+  return {
+    data: transformedData,
+    fields: Array.from(fieldsSet).sort(),
+  }
 }
 
 export async function uploadPDF(file: File): Promise<string> {
@@ -76,7 +93,9 @@ export async function uploadPDF(file: File): Promise<string> {
   return data.session_id
 }
 
-export async function getResults(sessionId: string): Promise<ProductionData[]> {
+export async function getResults(
+  sessionId: string
+): Promise<{ data: ProductionData[]; fields: string[] }> {
   const response = await fetch(`${API_BASE}/results/${sessionId}/${SECTION}`, {
     headers: getAuthHeaders(),
   })
@@ -86,18 +105,18 @@ export async function getResults(sessionId: string): Promise<ProductionData[]> {
   }
 
   const apiData: ApiResponse = await response.json()
-  return mapApiResponseToProductionData(apiData)
+  return transformApiData(apiData)
 }
 
 export async function pollResults(
   sessionId: string,
   maxAttempts: number = DEFAULT_MAX_ATTEMPTS,
   intervalMs: number = DEFAULT_POLL_INTERVAL_MS
-): Promise<ProductionData[]> {
+): Promise<{ data: ProductionData[]; fields: string[] }> {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      const data = await getResults(sessionId)
-      return data
+      const result = await getResults(sessionId)
+      return result
     } catch {
       const isLastAttempt = attempt === maxAttempts - 1
 

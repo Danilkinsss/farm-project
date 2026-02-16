@@ -110,6 +110,7 @@ function App() {
             <DataTable
               data={selectedReport.data}
               title={selectedReport.fileName}
+              availableFields={selectedReport.availableFields || []}
             />
           </>
         )}
