@@ -1,6 +1,6 @@
 # Dairy Farm Production Tracker
 
-Video explanation: https://www.youtube.com/watch?v=c-HOuCTnyOM
+Video explanation: [https://www.youtube.com/watch?v=c-HOuCTnyOM](https://youtu.be/cJSm198P4uI)
 
 A mobile-first web application for dairy farm advisors to upload, store, and analyze production reports — with offline access to previously saved data.
 
