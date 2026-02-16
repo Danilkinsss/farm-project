@@ -1,4 +1,4 @@
-I have been using Claude for general understanding and planning of the assignement, as well as Cursor's agent for codebase specific help and clarification.
+I have been using Claude for general understanding and planning of the assignment, as well as Cursor's agent for codebase-specific help and clarification.
 
 ## Examples of planning with Claude:
 
@@ -47,7 +47,7 @@ Shouldn't DataTable components be universal for different types of tables of con
 
 **Prompt:** "The API returns data in a different format than our app expects. Create a transformation function that maps API response fields to our internal data structure, handling any fields that might be present"
 
-**Output:** `transformApiData()` function that converts `ApiResponse` to `ProductionData[]` with field tracking, handles ordinal-to-month conversion, and preserves all fields dynamically
+**Output:** `transformApiData()` function that converts `ApiResponse` to `ProductionData[]` with field tracking, handles ordinal-to-month conversion, and preserves all fields in their original API order
 
 **Technical Challenge:** Needed to maintain type safety while allowing flexible field structures, ensuring the transformation layer doesn't break when API adds new fields
 
@@ -55,30 +55,42 @@ Shouldn't DataTable components be universal for different types of tables of con
 
 **Prompt:** "When displaying litres (45,000) and percentages (3.85) on the same chart, the percentages become invisible due to scale mismatch. How should we handle this?"
 
-**Output:** Separate chart per field approach - each numeric field gets its own chart with independent Y-axis scaling, making all data visible regardless of value ranges
+**Output:** Separate chart per field approach — each numeric field gets its own chart with independent Y-axis scaling, making all data visible regardless of value ranges
 
-**Technical Challenge:** Solved data visualization problem where different measurement scales couldn't coexist on single chart without losing visibility of smaller values
+**Technical Challenge:** Solved data visualization problem where different measurement scales couldn't coexist on a single chart without losing visibility of smaller values
 
 ### 6. Y-Axis Domain Optimization
 
 **Prompt:** "Small differences like 3.2% vs 3.3% aren't visible when Y-axis goes from 0-10. Calculate appropriate Y-axis domains that focus on the actual data range"
 
-**Output:** `calculateYAxisDomain()` function that computes min/max from data, adds padding, and sets domain to make small variations visible
+**Output:** `calculateYAxisDomain()` function that computes min/max from data, adds padding, rounds to clean values, and a `formatTickValue()` formatter to avoid floating-point artifacts on tick labels
 
-**Technical Challenge:** Balancing between showing meaningful differences and avoiding misleading visualizations by ensuring domain calculations are mathematically sound
+**Technical Challenge:** Balancing between showing meaningful differences and displaying clean tick values without floating-point precision issues (e.g. 3.8499999)
+
+### 7. Reactive Offline Indicator
+
+**Prompt:** "The offline indicator only checks navigator.onLine once at render. Make it reactive so it updates when connectivity changes"
+
+**Output:** Added `online`/`offline` event listeners in a `useEffect` cleanup pattern, with `isOnline` state driving the UI banner
+
+### 8. Shared Formatting Utilities
+
+**Prompt:** "formatFieldName is duplicated in Chart.tsx and DataTable.tsx. Extract shared helpers and add defensive formatting for imperfect data (null, NaN, missing values)"
+
+**Output:** Created `src/utils/format.ts` with `formatFieldName()` and `formatCellValue()` — both components now import from there. `formatCellValue` handles null, undefined, and NaN with dash placeholders
 
 ---
 
 ## Reasoning for AI Usage
 
-This challenge explicitly permits AI tool usage with the requirement to document it transparently. I leveraged Claude to:
+This challenge explicitly permits AI tool usage with the requirement to document it transparently. I leveraged Claude and Cursor to:
 
-1. **Accelerate Development** - Complete a week-long assignment in hours
-2. **Ensure Best Practices** - TypeScript patterns, React hooks, error handling
-3. **Mobile Optimization** - Responsive design patterns
-4. **Problem-Solving** - Handling variable API responses, async polling logic
-5. **Data Architecture** - Designing flexible transformation layers for variable API schemas
-6. **Visualization Challenges** - Solving scale incompatibility problems in data visualization
-7. **Code Quality** - Refactoring to maintain professional standards while keeping code natural
+1. **Accelerate Development** — Complete the assignment efficiently
+2. **Ensure Best Practices** — TypeScript patterns, React hooks, error handling
+3. **Mobile Optimization** — Responsive design patterns for on-site mobile use
+4. **Problem-Solving** — Handling variable API responses, async polling logic
+5. **Data Architecture** — Designing flexible transformation layers for variable API schemas
+6. **Visualization Challenges** — Solving scale incompatibility and Y-axis precision problems
+7. **Code Quality** — Extracting shared utilities, defensive data handling, clean component structure
 
 The AI acted as a senior developer pair-programmer, helping with implementation details and technical problem-solving, but all architectural decisions and business logic interpretations were mine.
