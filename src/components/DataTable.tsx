@@ -10,9 +10,7 @@ interface DataTableProps {
 function getSummaryValue(data: ProductionData[], field: string): string | null {
   const values = data
     .map((row) => row[field])
-    .filter(
-      (v) => typeof v === 'number' && !Number.isNaN(v)
-    ) as number[]
+    .filter((v) => typeof v === 'number' && !Number.isNaN(v)) as number[]
 
   if (values.length === 0) {
     return null
@@ -63,9 +61,7 @@ export default function DataTable({
   return (
     <div className="bg-white rounded-xl shadow-md mb-6 overflow-hidden">
       <div className="p-4 md:p-6 border-b border-gray-100">
-        <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-          {title}
-        </h3>
+        <h3 className="text-xl md:text-2xl font-bold text-gray-900">{title}</h3>
       </div>
 
       {numericFields.length > 0 && (
@@ -83,7 +79,9 @@ export default function DataTable({
                 <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                   {formatFieldName(field)}
                 </div>
-                <div className={`text-xl md:text-2xl font-bold mt-1 ${colors.text}`}>
+                <div
+                  className={`text-xl md:text-2xl font-bold mt-1 ${colors.text}`}
+                >
                   {summaryValue}
                 </div>
               </div>

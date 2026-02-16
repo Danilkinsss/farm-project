@@ -5,10 +5,7 @@ export function formatFieldName(field: string): string {
     .trim()
 }
 
-export function formatCellValue(
-  value: unknown,
-  fieldName: string
-): string {
+export function formatCellValue(value: unknown, fieldName: string): string {
   if (value === null || value === undefined) {
     return '—'
   }

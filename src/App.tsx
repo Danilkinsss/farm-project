@@ -9,8 +9,7 @@ function getInitialReports() {
   const allReports = getReports()
   return {
     reports: allReports,
-    selected:
-      allReports.length > 0 ? allReports[allReports.length - 1] : null,
+    selected: allReports.length > 0 ? allReports[allReports.length - 1] : null,
   }
 }
 
