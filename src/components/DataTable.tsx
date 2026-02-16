@@ -7,7 +7,10 @@ interface DataTableProps {
   availableFields?: string[]
 }
 
-function getSummaryValue(data: ProductionData[], field: string): string | null {
+function getSummaryValue(
+  data: ProductionData[],
+  field: string
+): [string, string] | null {
   const values = data
     .map((row) => row[field])
     .filter((v) => typeof v === 'number' && !Number.isNaN(v)) as number[]
@@ -19,12 +22,12 @@ function getSummaryValue(data: ProductionData[], field: string): string | null {
   // For percentages, show average
   if (field.toLowerCase().includes('percentage')) {
     const avg = values.reduce((a, b) => a + b, 0) / values.length
-    return `${avg.toFixed(2)}%`
+    return ['Average', `${avg.toFixed(2)}%`]
   }
 
   // For other numeric fields, show total
   const total = values.reduce((a, b) => a + b, 0)
-  return total.toLocaleString()
+  return ['Total', total.toLocaleString()]
 }
 
 export default function DataTable({
@@ -35,6 +38,9 @@ export default function DataTable({
   if (data.length === 0) {
     return null
   }
+
+  console.log('availableFields:', availableFields?.toString() ?? undefined)
+  console.log('data:', data)
 
   // Use availableFields if provided, otherwise infer from first row
   const fields =
@@ -67,7 +73,15 @@ export default function DataTable({
       {numericFields.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gray-100">
           {numericFields.slice(0, 3).map((field, idx) => {
-            const summaryValue = getSummaryValue(data, field)
+            const summaryResult = getSummaryValue(data, field)
+            if (
+              !summaryResult ||
+              !Array.isArray(summaryResult) ||
+              summaryResult.length !== 2
+            ) {
+              return null
+            }
+            const [summaryLabel, summaryValue] = summaryResult
             const colors = colorClasses[idx % colorClasses.length]
 
             if (!summaryValue) {
@@ -77,7 +91,7 @@ export default function DataTable({
             return (
               <div key={field} className="bg-white p-4 md:p-5">
                 <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  {formatFieldName(field)}
+                  {summaryLabel} {formatFieldName(field)}
                 </div>
                 <div
                   className={`text-xl md:text-2xl font-bold mt-1 ${colors.text}`}
