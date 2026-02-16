@@ -22,8 +22,8 @@ export interface Report {
   uploadDate: string
   data: ProductionData[]
   fileName: string
-  reportType?: string // NEW: track what kind of report
-  availableFields: string[] // NEW: what columns this report has
+  reportType?: string
+  availableFields: string[]
 }
 
 export interface UploadResponse {

@@ -41,6 +41,32 @@ Shouldn't DataTable components be universal for different types of tables of con
 
 **Output:** ProductionChart component with ResponsiveContainer
 
+## Examples of execution with Cursor:
+
+### 4. API Data Transformation Layer
+
+**Prompt:** "The API returns data in a different format than our app expects. Create a transformation function that maps API response fields to our internal data structure, handling any fields that might be present"
+
+**Output:** `transformApiData()` function that converts `ApiResponse` to `ProductionData[]` with field tracking, handles ordinal-to-month conversion, and preserves all fields dynamically
+
+**Technical Challenge:** Needed to maintain type safety while allowing flexible field structures, ensuring the transformation layer doesn't break when API adds new fields
+
+### 5. Chart Scale Incompatibility Solution
+
+**Prompt:** "When displaying litres (45,000) and percentages (3.85) on the same chart, the percentages become invisible due to scale mismatch. How should we handle this?"
+
+**Output:** Separate chart per field approach - each numeric field gets its own chart with independent Y-axis scaling, making all data visible regardless of value ranges
+
+**Technical Challenge:** Solved data visualization problem where different measurement scales couldn't coexist on single chart without losing visibility of smaller values
+
+### 6. Y-Axis Domain Optimization
+
+**Prompt:** "Small differences like 3.2% vs 3.3% aren't visible when Y-axis goes from 0-10. Calculate appropriate Y-axis domains that focus on the actual data range"
+
+**Output:** `calculateYAxisDomain()` function that computes min/max from data, adds padding, and sets domain to make small variations visible
+
+**Technical Challenge:** Balancing between showing meaningful differences and avoiding misleading visualizations by ensuring domain calculations are mathematically sound
+
 ---
 
 ## Reasoning for AI Usage
@@ -51,5 +77,8 @@ This challenge explicitly permits AI tool usage with the requirement to document
 2. **Ensure Best Practices** - TypeScript patterns, React hooks, error handling
 3. **Mobile Optimization** - Responsive design patterns
 4. **Problem-Solving** - Handling variable API responses, async polling logic
+5. **Data Architecture** - Designing flexible transformation layers for variable API schemas
+6. **Visualization Challenges** - Solving scale incompatibility problems in data visualization
+7. **Code Quality** - Refactoring to maintain professional standards while keeping code natural
 
-The AI acted as a senior developer pair-programmer, but all architectural decisions and business logic interpretations were mine.
+The AI acted as a senior developer pair-programmer, helping with implementation details and technical problem-solving, but all architectural decisions and business logic interpretations were mine.

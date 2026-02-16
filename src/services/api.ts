@@ -3,6 +3,7 @@ import type { ApiResponse, ProductionData, UploadResponse } from '../types'
 const API_BASE = 'http://f4040w8sskscss8c8sgc0ggc.20.102.99.51.sslip.io'
 const API_KEY =
   'bc7451ed584c963e10dd2f8cf16b73730959a30a6d50989a7f40d4f8fd7a21d1'
+// later on moving secrets to dedicated files is of course needed
 
 const CLIENT_NAME = 'Farm_Zero_C'
 const SECTION = 'dairyProduction'
@@ -32,9 +33,10 @@ function getAuthHeaders() {
   }
 }
 
-function transformApiData(
-  apiResponse: ApiResponse
-): { data: ProductionData[]; fields: string[] } {
+function transformApiData(apiResponse: ApiResponse): {
+  data: ProductionData[]
+  fields: string[]
+} {
   const fieldsSet = new Set<string>()
 
   const transformedData = apiResponse.data.map((item) => {

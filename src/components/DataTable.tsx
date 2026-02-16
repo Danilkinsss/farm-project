@@ -69,7 +69,6 @@ export default function DataTable({
     <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
       <h3 className="text-xl md:text-2xl font-bold mb-4">{title}</h3>
 
-      {/* Summary Cards */}
       {numericFields.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {numericFields.slice(0, 3).map((field, idx) => {
@@ -94,7 +93,6 @@ export default function DataTable({
         </div>
       )}
 
-      {/* Table - Mobile Optimized */}
       <div className="overflow-x-auto -mx-4 md:mx-0">
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden">
@@ -119,10 +117,7 @@ export default function DataTable({
                       const isNumeric = typeof value === 'number'
 
                       return (
-                        <td
-                          key={field}
-                          className="px-3 md:px-4 py-2 md:py-3"
-                        >
+                        <td key={field} className="px-3 md:px-4 py-2 md:py-3">
                           {isNumeric
                             ? field.toLowerCase().includes('percentage')
                               ? `${value.toFixed(2)}%`
